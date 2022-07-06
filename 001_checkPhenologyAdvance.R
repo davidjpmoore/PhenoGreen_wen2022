@@ -65,3 +65,36 @@ p <- ggplot(TrendLAI, aes(YEAR, LAImean))
 # A basic scatter plot
 p + geom_point(aes(colour = factor(SEASON)), size = 4)
 
+
+#Advanced spring and growth stimulation
+Advance_and_GrStim=read.csv(file="data/Advance_and_GrStim.csv",header = TRUE)
+
+Adv_GrStim_slim <-
+  pivot_longer(data= Advance_and_GrStim,
+               cols = starts_with("LAI"),
+               names_to = "YEARind",
+               values_to = "LAI"
+  )
+
+Adv_GrStim_slim$YEAR= as.numeric(substr(Adv_GrStim_slim$YEARind, start = 4, stop = 7))
+Adv_GrStim_slim$SEASON="none"
+Adv_GrStim_slim$SEASON[Adv_GrStim_slim$day>90]="early"
+Adv_GrStim_slim$SEASON[Adv_GrStim_slim$day>150]="mid"
+Adv_GrStim_slim$SEASON[Adv_GrStim_slim$day>200]="late"
+Adv_GrStim_slim$SEASON[Adv_GrStim_slim$day>250]="none"
+
+plot(Adv_GrStim_slim$YEAR,Adv_GrStim_slim$LAI)
+
+agTS <- ggplot(Adv_GrStim_slim, aes(day, LAI))
+agTS + geom_point(aes(colour = factor(YEAR)), size = 4)
+
+TrendLAI = Adv_GrStim_slim %>%
+  group_by(YEAR,SEASON) %>%
+  summarise_at(vars(LAI), list(LAImean = mean))
+
+
+ag <- ggplot(TrendLAI, aes(YEAR, LAImean))
+# A basic scatter plot
+ag + geom_point(aes(colour = factor(SEASON)), size = 4)
+
+
